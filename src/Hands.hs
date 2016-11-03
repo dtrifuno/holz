@@ -1,6 +1,8 @@
 module Hands where
 
 import Data.Bits
+import Data.Int
+import Text.Printf
 
 data Rank = Two
           | Three
@@ -17,7 +19,7 @@ data Rank = Two
           | Ace
           deriving (Eq, Show, Enum)
 
-primeRank :: Rank -> Int
+primeRank :: Rank -> Int32
 primeRank c = case c of
   Two   -> 2
   Three -> 3
@@ -42,18 +44,27 @@ data Suit = Spades
 data Card = Card Rank Suit
           deriving (Eq, Show)
 
-cardToInt :: Card -> Int
-cardToInt (Card r s) =
+-- | Encode card as an Int32 for Cactus Kev's hand evaluation algorithm
+--
+-- >>> printBits . cardToInt32 $ Card King Diamonds
+-- "00001000000000000100101100100101"
+-- >>> printBits . cardToInt32 $ Card Five Spades
+-- "00000000000010000001001100000111"
+-- >>> printBits . cardToInt32 $ Card Jack Clubs
+-- "00000010000000001000100100011101"
+
+cardToInt32 :: Card -> Int32
+cardToInt32 (Card r s) =
     primeRank r
-  + shift (fromEnum r) 8
+  + shift (fromIntegral $ fromEnum r) 8
   + shift 1 (12 + fromEnum s)
   + shift 1 (16 + fromEnum r)
 
-printBits :: Int -> String
-printBits s = reverse (printBit s 0)
+--flushes :: [Card] -> 
 
-printBit :: Int -> Int -> String
-printBit s 31 = if s .&. bit 31 /= 0 then "1" else "0"
-printBit s n  = if s .&. bit n /= 0
-                then '1':printBit s (n+1)
-                else '0':printBit s (n+1)
+--toCard :: Int32 -> Card
+--toCard
+
+
+printBits :: Int32 -> String
+printBits = printf "%032b"

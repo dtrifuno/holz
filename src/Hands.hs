@@ -1,7 +1,9 @@
+{-# LANGUAGE BinaryLiterals #-}
+
 module Hands where
 
 import Data.Bits
-import Data.Int
+import Data.Word (Word32)
 import Text.Printf
 
 data Rank = Two
@@ -19,7 +21,7 @@ data Rank = Two
           | Ace
           deriving (Eq, Show, Enum)
 
-primeRank :: Rank -> Int32
+primeRank :: Rank -> Word32
 primeRank c = case c of
   Two   -> 2
   Three -> 3
@@ -44,17 +46,16 @@ data Suit = Spades
 data Card = Card Rank Suit
           deriving (Eq, Show)
 
--- | Encode card as an Int32 for Cactus Kev's hand evaluation algorithm
---
--- >>> printBits . cardToInt32 $ Card King Diamonds
--- "00001000000000000100101100100101"
--- >>> printBits . cardToInt32 $ Card Five Spades
--- "00000000000010000001001100000111"
--- >>> printBits . cardToInt32 $ Card Jack Clubs
--- "00000010000000001000100100011101"
 
-cardToInt32 :: Card -> Int32
-cardToInt32 (Card r s) =
+-- | Encode card as an Word32 for Cactus Kev's hand evaluation algorithm
+--
+-- >>> printBits . cardToWord32 $ Card King Diamonds
+-- "00001000000000000100101100100101"
+-- >>> printBits . cardToWord32 $ Card Five Spades
+-- "00000000000010000001001100000111"
+--
+cardToWord32 :: Card -> Word32
+cardToWord32 (Card r s) =
     primeRank r
   + shift (fromIntegral $ fromEnum r) 8
   + shift 1 (12 + fromEnum s)
@@ -66,5 +67,5 @@ cardToInt32 (Card r s) =
 --toCard
 
 
-printBits :: Int32 -> String
+printBits :: Word32 -> String
 printBits = printf "%032b"

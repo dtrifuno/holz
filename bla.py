@@ -42,7 +42,8 @@ def card_to_int(card):
 flushes_table = {}
 uniques_table = {}
 multiples_table = {}
-
+threes_table = {}
+val = 7760
 
 def is_flush(c1, c2, c3, c4, c5):
     return c1 & c2 & c3 & c4 & c5 & 0xf000 != 0
@@ -51,41 +52,41 @@ def eval_flush(c1, c2, c3, c4, c5):
     return (c1 | c2 | c3 | c4 | c5) >> 16
 
 def straight_flushes():
-    val = 1 << 24
     suit = "Spades"
+    global val
 
-    # royal flush
-    c1, c2, c3, c4, c5 = ((enum_to_rank[j], suit) for j in range(12, 12-5, -1))
-    i1, i2, i3, i4, i5 = map(card_to_int, (c1, c2, c3, c4, c5))
-    flushes_table[eval_flush(i1, i2, i3, i4, i5)] = val
+    # A high to 6 high straight flush
+    for i in range(12, 3, -1):
+        c1, c2, c3, c4, c5 = ((enum_to_rank[j], suit) for j in range(i, i-5, -1))
+        i1, i2, i3, i4, i5 = map(card_to_int, (c1, c2, c3, c4, c5))
+        flushes_table[eval_flush(i1, i2, i3, i4, i5)] = val
+        #print(c1, c2, c3, c4, c5, val)
+        val -= 1
 
-    # wheel
-    val = 1 << 23
+    # Steel Wheel
     c1 = (enum_to_rank[12], suit)
     c2, c3, c4, c5 = ((enum_to_rank[j], suit) for j in range(0, 4))
     i1, i2, i3, i4, i5 = map(card_to_int, (c1, c2, c3, c4, c5))
     flushes_table[eval_flush(i1, i2, i3, i4, i5)] = val
-
-
-    # 6 high to K high
-    for i in range(4, 12, -1):
-        val += 1
-        c1, c2, c3, c4, c5 = ((enum_to_rank[j], suit) for j in range(i, i-5, -1))
-        i1, i2, i3, i4, i5 = map(card_to_int, (c1, c2, c3, c4, c5))
-        flushes_table[eval_flush(i1, i2, i3, i4, i5)] = val
+    #print(c1, c2, c3, c4, c5, val)
 
 
 
 def eval_mult(c1, c2, c3, c4, c5):
-    (c1 & 0xff) * (c2 & 0xff) * (c3 & 0xff) * (c4 & 0xff) * (c5 & 0xff)
+    return (c1 & 0xff) * (c2 & 0xff) * (c3 & 0xff) * (c4 & 0xff) * (c5 & 0xff)
+
+def eval_mult3(i1, i2, i3):
+    return (i1 & 0xff) * (i2 & 0xff) * (i3 & 0xff)
+
 
 def quads():
-    val = 1 << 22
+    global val
     s1, s2, s3, s4, s5 = "Spades", "Hearts", "Diamonds", "Clubs", "Clubs"
-    for i in range(0, 13):
-        for j in range(0, 13):
+    for i in range(12, -1, -1):
+        for j in range(12, -1, -1):
             if i == j:
                 continue
+            val -= 1
             rank  = enum_to_rank[i]
             rank_ = enum_to_rank[j]
             c1 = (rank, s1)
@@ -95,16 +96,18 @@ def quads():
             c5 = (rank_, s5)
             i1, i2, i3, i4, i5 = map(card_to_int, (c1, c2, c3, c4, c5))
             multiples_table[eval_mult(i1, i2, i3, i4, i5)] = val
-            val += 1
+            #print(c1, c2, c3, c4, c5, val)
 
 
 def full_houses():
-    val = 1 << 19
     s1, s2, s3, s4, s5 = "Spades", "Hearts", "Diamonds", "Clubs", "Spades"
-    for i in range(0, 13):
-        for j in range(0, 13):
+    global val
+
+    for i in range(12, -1, -1):
+        for j in range(12, -1, -1):
             if i == j:
                 continue
+            val -= 1
             rank  = enum_to_rank[i]
             rank_ = enum_to_rank[j]
             c1 = (rank, s1)
@@ -114,35 +117,174 @@ def full_houses():
             c5 = (rank_, s5)
             i1, i2, i3, i4, i5 = map(card_to_int, (c1, c2, c3, c4, c5))
             multiples_table[eval_mult(i1, i2, i3, i4, i5)] = val
-            val += 1
+            #print(c1, c2, c3, c4, c5, val)
 
 #
 def flushes():
-    val = 1 << 17
     suit = "Spades"
-    for comb in combinations(range(0, 13), 5):
-        r1, r2, r3, r4, r5 = sorted(list(comb), reverse=True)
-        c1 = (enum_to_rank[r1], suit)
-        c2 = (enum_to_rank[r2], suit)
-        c3 = (enum_to_rank[r3], suit)
-        c4 = (enum_to_rank[r4], suit)
-        c5 = (enum_to_rank[r5], suit)
-        i1, i2, i3, i4, i5 = map(card_to_int, (c1, c2, c3, c4, c5))
-        key = eval_flush(i1, i2, i3, i4, i5)
-        if key in flushes_table:
-            continue
-        print(c1, c2, c3, c4, c5, key)
-        flushes_table[key] = val
-        val += 1
+    global val
+
+    for r1 in range(12, -1, -1):
+        for r2 in range(r1-1, -1, -1):
+            for r3 in range(r2-1, -1, -1):
+                for r4 in range(r3-1, -1, -1):
+                    for r5 in range(r4-1, -1, -1):
+                        c1 = (enum_to_rank[r1], suit)
+                        c2 = (enum_to_rank[r2], suit)
+                        c3 = (enum_to_rank[r3], suit)
+                        c4 = (enum_to_rank[r4], suit)
+                        c5 = (enum_to_rank[r5], suit)
+                        i1, i2, i3, i4, i5 = map(card_to_int, (c1, c2, c3, c4, c5))
+                        key = eval_flush(i1, i2, i3, i4, i5)
+                        if key in flushes_table:
+                            continue
+                        val -= 1
+                        #print(c1, c2, c3, c4, c5, val)
+                        flushes_table[key] = val
 
 def straights():
-    pass
+    suit1 = "Spades"
+    suit2 = "Hearts"
+    global val
+
+    # A high to 6 high straight flush
+    for i in range(12, 3, -1):
+        val -= 1
+        c1, c2, c3, c4 = ((enum_to_rank[j], suit1) for j in range(i, i-4, -1))
+        c5 = (enum_to_rank[i-4], suit2)
+        i1, i2, i3, i4, i5 = map(card_to_int, (c1, c2, c3, c4, c5))
+        uniques_table[eval_flush(i1, i2, i3, i4, i5)] = val
+        #print(c1, c2, c3, c4, c5, val)
+
+    # Steel Wheel
+    val -= 1
+    c1 = (enum_to_rank[12], suit1)
+    c2, c3, c4, c5 = ((enum_to_rank[j], suit2) for j in range(0, 4))
+    i1, i2, i3, i4, i5 = map(card_to_int, (c1, c2, c3, c4, c5))
+    uniques_table[eval_flush(i1, i2, i3, i4, i5)] = val
+    print(c1, c2, c3, c4, c5, val)
 
 def sets():
-    pass
+    s1, s2, s3 = "Spades", "Hearts", "Diamonds"
+    global val
+
+    for r1 in range(12, -1, -1):
+        c1, c2, c3 = (enum_to_rank[r1], s1), (enum_to_rank[r1], s2), (enum_to_rank[r1], s3)
+        for r2 in range(12, -1, -1):
+            if r1 == r2:
+                continue
+            for r3 in range(r2-1, -1, -1):
+                if r1 == r3:
+                    continue
+                val -= 1
+                c4 = (enum_to_rank[r2], s1)
+                c5 = (enum_to_rank[r3], s1)
+                i1, i2, i3, i4, i5 = map(card_to_int, (c1, c2, c3, c4, c5))
+                print(c1, c2, c3, c4, c5, val)
+                multiples_table[eval_mult(i1, i2, i3, i4, i5)] = val
+        val -= 1
+        print(c1, c2, c3, val)
+        i1, i2, i3 = map(card_to_int, (c1, c2, c3))
+        threes_table[eval_mult3(i1, i2, i3)] = val
+        print(c1, c2, c3, val)
+
+def two_pairs():
+    s1, s2 = "Spades", "Hearts"
+    global val
+
+    for r1 in range(12, -1, -1):
+        for r2 in range(r1-1, -1, -1):
+            for r3 in range(12, -1, -1):
+                if r1 == r3 or r2 == r3:
+                    continue
+                val -= 1
+                c1, c2 = (enum_to_rank[r1], s1), (enum_to_rank[r1], s2),
+                c3, c4 = (enum_to_rank[r2], s1), (enum_to_rank[r2], s2)
+                c5 = enum_to_rank[r3], s1
+                i1, i2, i3, i4, i5 = map(card_to_int, (c1, c2, c3, c4, c5))
+                # print(c1, c2, c3, c4, c5, val)
+                multiples_table[eval_mult(i1, i2, i3, i4, i5)] = val
 
 def pairs():
-    pass
+    s1, s2 = "Spades", "Hearts"
+    global val
+
+    for r1 in range(12, -1, -1):
+        for r2 in range(12, -1, -1):
+            if r1 == r2:
+                continue
+            for r3 in range(r2-1, -1, -1):
+                if r1 == r3:
+                    continue
+                for r4 in range(r3-1, -1, -1):
+                    if r1 == r4:
+                        continue
+                    val -= 1
+                    c1, c2 = (enum_to_rank[r1], s1), (enum_to_rank[r1], s2),
+                    c3, c4, c5 = (enum_to_rank[r2], s1), (enum_to_rank[r3], s1), (enum_to_rank[r4], s1)
+                    i1, i2, i3, i4, i5 = map(card_to_int, (c1, c2, c3, c4, c5))
+                    multiples_table[eval_mult(i1, i2, i3, i4, i5)] = val
+                    print(c1, c2, c3, c4, c5, val)
+            val -= 1
+            c1, c2, c3 = (enum_to_rank[r1], s1), (enum_to_rank[r1], s2), (enum_to_rank[r3], s1)
+            print(c1, c2, c3, val)
+            i1, i2, i3 = map(card_to_int, (c1, c2, c3))
+            threes_table[eval_mult3(i1, i2, i3)] = val
 
 def high_cards():
-    pass
+    s1, s2 = "Spades", "Hearts"
+    global val
+
+    for r1 in range(12, 1, -1):
+        for r2 in range(r1-1, 0, -1):
+            for r3 in range(r2-1, -1, -1):
+                c1 = (enum_to_rank[r1], s1)
+                c2 = (enum_to_rank[r2], s1)
+                c3 = (enum_to_rank[r3], s2)
+                if (r3 > 1):
+                    for r4 in range(r3-1, -1, -1):
+                        for r5 in range(r4-1, -1, -1):
+                            c4 = (enum_to_rank[r4], s1)
+                            c5 = (enum_to_rank[r5], s1)
+                            i1, i2, i3, i4, i5 = map(card_to_int, (c1, c2, c3, c4, c5))
+                            key = eval_flush(i1, i2, i3, i4, i5)
+                            if key in uniques_table:
+                                continue # skip if it is a straight
+                            val -= 1
+                            uniques_table[eval_flush(i1, i2, i3, i4, i5)] = val
+                            print(c1, c2, c3, c4, c5, val)
+                val -= 1
+                i1, i2, i3 = map(card_to_int, (c1, c2, c3))
+                threes_table[eval_mult3(i1, i2, i3)] = val
+                print(c1, c2, c3, val)
+
+
+straight_flushes()
+quads()
+full_houses()
+flushes()
+straights()
+sets()
+two_pairs()
+pairs()
+#high_cards()
+
+"""
+with open('bla.hs', 'w') as fp:
+    max_key = max(flushes_table.keys())
+    for i in range(0, max_key+1):
+        val = flushes_table.get(i, 0)
+        fp.write("{}, ".format(val))
+
+    fp.write('\n')
+    max_key = max(uniques_table.keys())
+    for i in range(0, max_key+1):
+        val = uniques_table.get(i, 0)
+        fp.write("{}, ".format(val))
+
+    fp.write('\n')
+    max_key = max(multiples_table.keys())
+    for i in range(0, max_key+1):
+        if i in multiples_table:
+            fp.write("({}, {}), ".format(i, multiples_table[i]))
+"""

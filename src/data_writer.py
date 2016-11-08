@@ -43,7 +43,7 @@ flushes_table = {}
 uniques_table = {}
 multiples_table = {}
 threes_table = {}
-val = 7760
+val = 7916
 
 def is_flush(c1, c2, c3, c4, c5):
     return c1 & c2 & c3 & c4 & c5 & 0xf000 != 0
@@ -60,7 +60,7 @@ def straight_flushes():
         c1, c2, c3, c4, c5 = ((enum_to_rank[j], suit) for j in range(i, i-5, -1))
         i1, i2, i3, i4, i5 = map(card_to_int, (c1, c2, c3, c4, c5))
         flushes_table[eval_flush(i1, i2, i3, i4, i5)] = val
-        #print(c1, c2, c3, c4, c5, val)
+        print(c1, c2, c3, c4, c5, val)
         val -= 1
 
     # Steel Wheel
@@ -68,7 +68,7 @@ def straight_flushes():
     c2, c3, c4, c5 = ((enum_to_rank[j], suit) for j in range(0, 4))
     i1, i2, i3, i4, i5 = map(card_to_int, (c1, c2, c3, c4, c5))
     flushes_table[eval_flush(i1, i2, i3, i4, i5)] = val
-    #print(c1, c2, c3, c4, c5, val)
+    print(c1, c2, c3, c4, c5, val)
 
 
 
@@ -96,7 +96,7 @@ def quads():
             c5 = (rank_, s5)
             i1, i2, i3, i4, i5 = map(card_to_int, (c1, c2, c3, c4, c5))
             multiples_table[eval_mult(i1, i2, i3, i4, i5)] = val
-            #print(c1, c2, c3, c4, c5, val)
+            print(c1, c2, c3, c4, c5, val)
 
 
 def full_houses():
@@ -117,7 +117,7 @@ def full_houses():
             c5 = (rank_, s5)
             i1, i2, i3, i4, i5 = map(card_to_int, (c1, c2, c3, c4, c5))
             multiples_table[eval_mult(i1, i2, i3, i4, i5)] = val
-            #print(c1, c2, c3, c4, c5, val)
+            print(c1, c2, c3, c4, c5, val)
 
 #
 def flushes():
@@ -139,7 +139,7 @@ def flushes():
                         if key in flushes_table:
                             continue
                         val -= 1
-                        #print(c1, c2, c3, c4, c5, val)
+                        print(c1, c2, c3, c4, c5, val)
                         flushes_table[key] = val
 
 def straights():
@@ -226,7 +226,7 @@ def pairs():
                     multiples_table[eval_mult(i1, i2, i3, i4, i5)] = val
                     print(c1, c2, c3, c4, c5, val)
             val -= 1
-            c1, c2, c3 = (enum_to_rank[r1], s1), (enum_to_rank[r1], s2), (enum_to_rank[r3], s1)
+            c1, c2, c3 = (enum_to_rank[r1], s1), (enum_to_rank[r1], s2), (enum_to_rank[r2], s1)
             print(c1, c2, c3, val)
             i1, i2, i3 = map(card_to_int, (c1, c2, c3))
             threes_table[eval_mult3(i1, i2, i3)] = val
@@ -252,7 +252,7 @@ def high_cards():
                                 continue # skip if it is a straight
                             val -= 1
                             uniques_table[eval_flush(i1, i2, i3, i4, i5)] = val
-                            print(c1, c2, c3, c4, c5, val)
+                            #print(c1, c2, c3, c4, c5, val)
                 val -= 1
                 i1, i2, i3 = map(card_to_int, (c1, c2, c3))
                 threes_table[eval_mult3(i1, i2, i3)] = val
@@ -267,24 +267,29 @@ straights()
 sets()
 two_pairs()
 pairs()
-#high_cards()
+high_cards()
 
-"""
-with open('bla.hs', 'w') as fp:
+with open('Data.hs', 'w') as fp:
+    fp.write('flushes = [')
     max_key = max(flushes_table.keys())
     for i in range(0, max_key+1):
         val = flushes_table.get(i, 0)
         fp.write("{}, ".format(val))
 
-    fp.write('\n')
+    fp.write('\nuniques = [')
     max_key = max(uniques_table.keys())
     for i in range(0, max_key+1):
         val = uniques_table.get(i, 0)
         fp.write("{}, ".format(val))
 
-    fp.write('\n')
+    fp.write('\nmultiples = [')
     max_key = max(multiples_table.keys())
     for i in range(0, max_key+1):
         if i in multiples_table:
             fp.write("({}, {}), ".format(i, multiples_table[i]))
-"""
+
+    fp.write('\nthrees = [')
+    max_key = max(threes_table.keys())
+    for i in range(0, max_key+1):
+        if i in threes_table:
+            fp.write("({}, {}), ".format(i, threes_table[i]))

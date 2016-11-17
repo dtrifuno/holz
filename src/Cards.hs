@@ -3,6 +3,7 @@
 module Cards where
 
 import Data.Bits
+import Data.Char (ord)
 import Data.Word (Word32, Word16)
 import Text.Printf
 
@@ -59,10 +60,10 @@ type HandStrength16 = Word16
 --
 cardToWord32 :: Card -> Card32
 cardToWord32 (Card r s) =
-    primeRank r
-  + shift (fromIntegral $ fromEnum r) 8
-  + shift 1 (12 + fromEnum s)
-  + shift 1 (16 + fromEnum r)
+  primeRank r
+    + shift (fromIntegral $ fromEnum r) 8
+    + shift 1 (12 + fromEnum s)
+    + shift 1 (16 + fromEnum r)
 
 -- | Retrieve a card from its Word32 encoding
 --
@@ -78,6 +79,27 @@ toCard w = Card (getRank w) (getSuit w)
           0x4000 -> Diamonds
           0x8000 -> Clubs
         getRank w = (toEnum . fromIntegral $ countTrailingZeros (shift w (-16))) :: Rank
+
+-- | Parse a card from shorthand notation
+--
+-- >>> parseCard "AH"
+-- Card Ace Hearts
+-- >>> parseCard "5D"
+-- Card Five Diamonds
+parseCard :: String -> Card
+parseCard [r, s] = Card (parseRank r) (parseSuit s)
+  where parseSuit 'S' = Spades
+        parseSuit 'H' = Hearts
+        parseSuit 'D' = Diamonds
+        parseSuit 'C' = Clubs
+        parseRank 'A' = Ace
+        parseRank 'K' = King
+        parseRank 'Q' = Queen
+        parseRank 'T' = Ten
+        parseRank w   = toEnum (ord w - 50) :: Rank
+
+parseCards :: String -> [Card]
+parseCards cs = error "Q"
 
 printBits :: Word32 -> String
 printBits = printf "%032b"

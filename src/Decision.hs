@@ -1,0 +1,1 @@
+--decide :: AI Player -> Human Player -> Card -> Deck -> AI Player

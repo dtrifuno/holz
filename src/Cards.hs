@@ -1,11 +1,14 @@
-{-# LANGUAGE BinaryLiterals #-}
+{-# LANGUAGE BinaryLiterals, OverloadedStrings #-}
 
 module Cards where
 
 import Data.Bits
 import Data.Char (ord)
+import qualified Data.Text as T
 import Data.Word (Word32, Word16)
 import Text.Printf
+
+import Util
 
 data Rank = Two
           | Three
@@ -82,13 +85,16 @@ toCard w = Card (getRank w) (getSuit w)
 
 -- | Parse a card from shorthand notation
 --
+-- >>> :set -XOverloadedStrings
 -- >>> parseCard "AH"
 -- Card Ace Hearts
 -- >>> parseCard "5D"
 -- Card Five Diamonds
-parseCard :: String -> Card
-parseCard [r, s] = Card (parseRank r) (parseSuit s)
-  where parseSuit 'S' = Spades
+parseCard :: T.Text -> Card
+parseCard txt = Card (parseRank r) (parseSuit s)
+  where r = T.head txt
+        s = T.last txt
+        parseSuit 'S' = Spades
         parseSuit 'H' = Hearts
         parseSuit 'D' = Diamonds
         parseSuit 'C' = Clubs
@@ -98,8 +104,8 @@ parseCard [r, s] = Card (parseRank r) (parseSuit s)
         parseRank 'T' = Ten
         parseRank w   = toEnum (ord w - 50) :: Rank
 
-parseCards :: String -> [Card]
-parseCards cs = error "Q"
+parseCards :: T.Text -> [Card]
+parseCards cs = map parseCard $ T.splitOn "," (T.toUpper $ stripWhitespace cs)
 
 printBits :: Word32 -> String
 printBits = printf "%032b"

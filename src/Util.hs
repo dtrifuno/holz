@@ -1,12 +1,11 @@
+module Util where
+
 import Data.Array.MArray
 import Data.Array.IO
 
+import qualified Data.Text as T
+
 import System.Random
 
-testArray = newListArray (1, 5) [2, 5, 7, 3, 10]
-
---shuffle :: MArray Int e
-shuffle a = do
-  let n = length a
-  x <- sequence [randomRIO (0, x) | x <- [n,n-1..1]]
-  print x
+stripWhitespace :: T.Text -> T.Text
+stripWhitespace = T.filter (\x -> not $ elem x [' ', '\n', '\t'])

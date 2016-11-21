@@ -89,7 +89,7 @@ toCard w = Card getRank getSuit
           0x2000 -> Hearts
           0x4000 -> Diamonds
           0x8000 -> Clubs
-          otherwise -> error "Not a valid Word32 encoding of a card."
+          _      -> error "Not a valid Word32 encoding of a card."
         getRank = (toEnum . fromIntegral $ countTrailingZeros (shift w (-16))) :: Rank
 
 -- |Parses a card from shorthand notation.

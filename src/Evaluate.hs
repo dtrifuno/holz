@@ -1,4 +1,4 @@
-module Game where
+module Evaluate where
 
 import Cards
 import HandStrength.Data
@@ -12,7 +12,7 @@ import qualified Data.IntMap.Strict as M
 
 type Row     = UA.Array Int Card'
 data RowType = Bottom | Middle | Top
-data Player  = Player Row Row Row
+data Player'  = Player' Row Row Row
 
 flushesArray = UA.listArray (0, length flushesList - 1) (map fromIntegral flushesList) :: UA.Array Int HandStrength16
 
@@ -66,11 +66,11 @@ royalty Bottom xs | hs >= 7916 = 25 --Royal Flush
                   | otherwise  = 0
                   where hs = evalHand xs
 
-royalties :: Player -> Int
-royalties (Player b1 m1 t1) = royalty Bottom b1 - royalty Middle m1 - royalty Top t1
+royalties :: Player' -> Int
+royalties (Player' b1 m1 t1) = royalty Bottom b1 - royalty Middle m1 - royalty Top t1
 
-rateHands :: Player -> Player -> Int
-rateHands p1@(Player b1 m1 t1) p2@(Player b2 m2 t2) = royalties p1 - royalties p2
+rateHands :: Player' -> Player' -> Int
+rateHands p1@(Player' b1 m1 t1) p2@(Player' b2 m2 t2) = royalties p1 - royalties p2
  + if evalHand b1 > evalHand b2 then 1 else 0
  + if evalHand b2 > evalHand b1 then (-1) else 0
  + if evalHand m1 > evalHand m2 then 1 else 0
@@ -79,16 +79,16 @@ rateHands p1@(Player b1 m1 t1) p2@(Player b2 m2 t2) = royalties p1 - royalties p
  + if evalHand t2 > evalHand t1 then (-1) else 0
 
 -- Has p1 scooped p2?
-scooped :: Player -> Player -> Bool
-scooped (Player b1 m1 t1) (Player b2 m2 t2) = (evalHand b1 > evalHand b2)
+scooped :: Player' -> Player' -> Bool
+scooped (Player' b1 m1 t1) (Player' b2 m2 t2) = (evalHand b1 > evalHand b2)
     && (evalHand m1 > evalHand t2)
     && (evalHand t1 > evalHand t2)
 
-fouled :: Player -> Bool
-fouled (Player b1 m1 t1) = (evalHand t1 <= evalHand m1) && (evalHand m1 <= evalHand b1)
+fouled :: Player' -> Bool
+fouled (Player' b1 m1 t1) = (evalHand t1 <= evalHand m1) && (evalHand m1 <= evalHand b1)
 
-scoreGame :: Player -> Player -> Int
-scoreGame p1@(Player b1 m1 t1) p2@(Player b2 m2 t2)
+scoreGame :: Player' -> Player' -> Int
+scoreGame p1 p2
   | fouled p1 && fouled p2 = 0
   | fouled p1              = 6 + royalties p2
   | fouled p2              = -6 - royalties p1

@@ -4,13 +4,12 @@ module Main where
 
 
 import Control.Monad (forever)
-import Data.Maybe
 import Data.List (nub)
-import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 import System.IO
 
 import Cards
+import Simulate
 
 main :: IO ()
 main = do
@@ -21,8 +20,8 @@ main = do
 
 handleSetting :: IO ()
 handleSetting = do
-  putStrLn "Input cards as comma-separated lists in shorthand notation."
-  putStrLn "(example: Ah,Th,5h)"
+  putStr "Input cards as a comma-separated list in shorthand notation."
+  putStrLn " (example: Ah,Th,5h)\n"
   bottom' <- promptCards "Your Bottom row: "
   middle' <- promptCards "Your Middle row: "
   top' <- promptCards "Your Top row: "
@@ -61,5 +60,22 @@ validate (Player b1 m1 t1) (Player b2 m2 t2) c =
   cards == nub cards
   where cards = c:(b1 ++ m1 ++ t1 ++ b2 ++ m2 ++ t2)
 
+sims :: Int
+sims = 1000
+
 giveEVs :: Player -> Player -> Card -> IO ()
-giveEVs _ _ _ = putStrLn "Lol"
+giveEVs (Player b1 m1 t1) p2 c = do
+  putStrLn ""
+  if length t1 < 3
+    then printResult "Top:    " (simulate (Player b1 m1 t1') p2 sims)
+    else return ()
+  if length m1 < 5
+    then printResult "Middle: " (simulate (Player b1 m1' t1) p2 sims)
+    else return ()
+  if length b1 < 5
+    then printResult "Bottom: " (simulate (Player b1' m1 t1) p2 sims)
+    else return ()
+  where printResult str f = putStrLn $ str ++ show f
+        b1' = c:b1
+        m1' = c:m1
+        t1' = c:t1

@@ -4,6 +4,7 @@ module Cards where
 
 import Data.Bits
 import Data.Char (ord)
+import Data.Maybe (fromJust, isNothing)
 import qualified Data.Text as T
 import Data.Word (Word32, Word16)
 import Text.Printf
@@ -50,7 +51,14 @@ data Suit = Spades
 data Card = Card Rank Suit
           deriving (Eq, Show)
 
-type Card32 = Word32
+data Player = Player
+  {
+    bottom :: [Card]
+  , middle :: [Card]
+  , top    :: [Card]
+  }
+
+type Card' = Word32
 
 type HandStrength16 = Word16
 
@@ -61,7 +69,7 @@ type HandStrength16 = Word16
 -- >>> printBits . cardToWord32 $ Card Five Spades
 -- "00000000000010000001001100000111"
 --
-cardToWord32 :: Card -> Card32
+cardToWord32 :: Card -> Card'
 cardToWord32 (Card r s) =
   primeRank r
     + shift (fromIntegral $ fromEnum r) 8
@@ -74,38 +82,54 @@ cardToWord32 (Card r s) =
 -- Card Five Spades
 -- >>> toCard 0x200891d
 -- Card Jack Clubs
-toCard :: Card32 -> Card
-toCard w = Card (getRank w) (getSuit w)
-  where getSuit w = case w .&. 0xf000 of
+toCard :: Card' -> Card
+toCard w = Card getRank getSuit
+  where getSuit = case w .&. 0xf000 of
           0x1000 -> Spades
           0x2000 -> Hearts
           0x4000 -> Diamonds
           0x8000 -> Clubs
-        getRank w = (toEnum . fromIntegral $ countTrailingZeros (shift w (-16))) :: Rank
+          otherwise -> error "Not a valid Word32 encoding of a card."
+        getRank = (toEnum . fromIntegral $ countTrailingZeros (shift w (-16))) :: Rank
 
--- | Parse a card from shorthand notation
+-- |Parses a card from shorthand notation.
 --
 -- >>> :set -XOverloadedStrings
 -- >>> parseCard "AH"
--- Card Ace Hearts
+-- Just (Card Ace Hearts)
 -- >>> parseCard "5D"
--- Card Five Diamonds
-parseCard :: T.Text -> Card
-parseCard txt = Card (parseRank r) (parseSuit s)
-  where r = T.head txt
-        s = T.last txt
-        parseSuit 'S' = Spades
-        parseSuit 'H' = Hearts
-        parseSuit 'D' = Diamonds
-        parseSuit 'C' = Clubs
-        parseRank 'A' = Ace
-        parseRank 'K' = King
-        parseRank 'Q' = Queen
-        parseRank 'T' = Ten
-        parseRank w   = toEnum (ord w - 50) :: Rank
+-- Just (Card Five Diamonds)
+parseCard :: T.Text -> Maybe Card
+parseCard txt | isNothing (parseRank r) = Nothing
+              | isNothing (parseSuit s) = Nothing
+              | otherwise = Just (Card (fromJust $ parseRank r)
+                                       (fromJust $ parseSuit s))
+  where r = T.head (T.toUpper txt)
+        s = T.last (T.toUpper txt)
+        parseSuit 'S' = Just Spades
+        parseSuit 'H' = Just Hearts
+        parseSuit 'D' = Just Diamonds
+        parseSuit 'C' = Just Clubs
+        parseSuit _   = Nothing
+        parseRank 'A' = Just Ace
+        parseRank 'K' = Just King
+        parseRank 'Q' = Just Queen
+        parseRank 'T' = Just Ten
+        parseRank w   | ord w < ord '2' = Nothing
+                      | ord w > ord '9' = Nothing
+                      | otherwise = Just (toEnum (ord w - 50) :: Rank)
 
-parseCards :: T.Text -> [Card]
-parseCards cs = map parseCard $ T.splitOn "," (T.toUpper $ stripWhitespace cs)
+-- |Parses a comma-separated list of cards in shorthand notation.
+--
+-- >>> parseCards "Ah,Th,5c"
+-- Just [Card Ace Hearts,Card Ten Hearts,Card Five Clubs]
+-- >>> parseCards "Ah,TTer,5c"
+-- Nothing
+-- >>> parseCards ""
+-- Just []
+parseCards :: T.Text -> Maybe [Card]
+parseCards "" = Just []
+parseCards cs = mapM parseCard $ T.splitOn "," (stripWhitespace cs)
 
 printBits :: Word32 -> String
 printBits = printf "%032b"

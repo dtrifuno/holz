@@ -23,6 +23,7 @@ executable holz
   -- other-extensions:    
   build-depends:       base >=4.8 && <4.9
                      , containers
+                     , array
                      , random
                      , text
   hs-source-dirs:      src

@@ -1,6 +1,11 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
 
+
 import Control.Monad (forever)
+import Data.Maybe
+import Data.List (nub)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 import System.IO
@@ -11,26 +16,50 @@ main :: IO ()
 main = do
   hSetBuffering stdout NoBuffering
   forever $ do
-    getSetting
-    putStrLn "boo"
+    handleSetting
+    putStrLn ""
 
-
-getSetting :: IO ()
-getSetting = do
+handleSetting :: IO ()
+handleSetting = do
   putStrLn "Input cards as comma-separated lists in shorthand notation."
   putStrLn "(example: Ah,Th,5h)"
-  putStr "Your Bottom row: "
-  bottomStr <- T.IO.getLine
-  putStr "Your Middle row: "
-  middleStr <- T.IO.getLine
-  putStr "Your Top row: "
-  topStr <- getLine
-  putStr "Opponent's Top row: "
-  oppTopStr <- T.IO.getLine
-  putStr "Opponent's Middle row: "
-  oppMiddleStr <- T.IO.getLine
-  putStr "Opponent's Top row: "
-  oppTopStr <- T.IO.getLine
-  putStr "Card to play: "
-  cardStr <- T.IO.getLine
+  bottom' <- promptCards "Your Bottom row: "
+  middle' <- promptCards "Your Middle row: "
+  top' <- promptCards "Your Top row: "
+  oppBottom <- promptCards "Opponent's Bottom row: "
+  oppMiddle <- promptCards "Opponent's Middle row: "
+  oppTop <- promptCards "Opponent's Top row: "
+  card <- promptCard "Card you are about to play: "
+  let p1 = Player bottom' middle' top'
+  let p2 = Player oppBottom oppMiddle oppTop
+  if validate p1 p2 card
+    then giveEVs p1 p2 card
+    else putStrLn "Not a valid setting. Did you reuse a card? Try again."
   return ()
+
+promptCards :: String -> IO [Card]
+promptCards txt = do
+  putStr txt
+  gotTxt <- T.IO.getLine
+  let cards = parseCards gotTxt
+  maybe (do
+    putStrLn "Not a valid list of cards. Try again."
+    promptCards txt)
+    return cards
+
+promptCard :: String -> IO Card
+promptCard txt = do
+  putStr txt
+  gotTxt <- T.IO.getLine
+  maybe (do
+   putStrLn "Not a valid card. Try again."
+   promptCard txt)
+   return (parseCard gotTxt)
+
+validate :: Player -> Player -> Card -> Bool
+validate (Player b1 m1 t1) (Player b2 m2 t2) c =
+  cards == nub cards
+  where cards = c:(b1 ++ m1 ++ t1 ++ b2 ++ m2 ++ t2)
+
+giveEVs :: Player -> Player -> Card -> IO ()
+giveEVs _ _ _ = putStrLn "Lol"

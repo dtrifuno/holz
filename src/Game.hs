@@ -10,7 +10,7 @@ import Data.Bits
 import qualified Data.Array.Unboxed as UA
 import qualified Data.IntMap.Strict as M
 
-type Row     = UA.Array Int Card32
+type Row     = UA.Array Int Card'
 data RowType = Bottom | Middle | Top
 data Player  = Player Row Row Row
 
@@ -23,7 +23,7 @@ multiplesMap = M.fromList (map (fromIntegral *** fromIntegral) multiplesList :: 
 threesMap = M.fromList (map (fromIntegral *** fromIntegral) threesList :: [(Int, HandStrength16)])
 
 
-royalty :: (Foldable t) => RowType -> t Card32 -> Int
+royalty :: (Foldable t) => RowType -> t Card' -> Int
 royalty Top xs | hs >= 6241 = 22 --AAA
                | hs >= 6174 = 21 --KKK
                | hs >= 6107 = 20 --QQQ
@@ -97,23 +97,23 @@ scoreGame p1@(Player b1 m1 t1) p2@(Player b2 m2 t2)
   | otherwise              = rateHands p1 p2
 
 
-evalHand :: (Foldable t) => t Card32 -> HandStrength16
+evalHand :: (Foldable t) => t Card' -> HandStrength16
 evalHand xs | length xs == 3 = evalHandThree xs
             | length xs == 5 = evalHandFive xs
 
-isFlush :: (Foldable t) => t Card32 -> Bool
+isFlush :: (Foldable t) => t Card' -> Bool
 isFlush xs = foldr (.&.) 0xf000 xs /= 0
 
-evalFlush :: (Foldable t) => t Card32 -> Word32
+evalFlush :: (Foldable t) => t Card' -> Word32
 evalFlush xs = shift (foldr (.|.) 0 xs) (-16)
 
-evalMultiples :: (Foldable t) => t Card32 -> Word32
+evalMultiples :: (Foldable t) => t Card' -> Word32
 evalMultiples = foldr (\x y -> (x .&. 0xff) * y) 1
 
-evalHandFive :: (Foldable t) => t Card32 -> HandStrength16
+evalHandFive :: (Foldable t) => t Card' -> HandStrength16
 evalHandFive xs | isFlush xs = flushesArray UA.! fromIntegral (evalFlush xs)
                 | uniquesArray UA.! fromIntegral (evalFlush xs) /= 0 = uniquesArray UA.! fromIntegral (evalFlush xs)
                 | otherwise = multiplesMap M.! fromIntegral (evalMultiples xs)
 
-evalHandThree :: (Foldable t) => t Card32 -> HandStrength16
+evalHandThree :: (Foldable t) => t Card' -> HandStrength16
 evalHandThree xs = threesMap M.! fromIntegral (evalMultiples xs)

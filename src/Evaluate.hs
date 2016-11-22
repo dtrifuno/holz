@@ -3,21 +3,20 @@ module Evaluate where
 import Data.Word
 
 import Data.Bits
-import qualified Data.Vector.Unboxed as VU
+import qualified Data.Vector.Unboxed as U
 import qualified Data.IntMap.Strict as M
 
 import Cards
 import HandStrength.Data
 
-type Row     = VU.Vector Card'
 data RowType = Bottom | Middle | Top
-data Player' = Player' Row Row Row
+data Player' = Player' (U.Vector Card') (U.Vector Card') (U.Vector Card')
 
-flushesVec :: VU.Vector HandStrength16
-flushesVec = VU.fromList flushesList
+flushesVec :: U.Vector HandStrength16
+flushesVec = U.fromList flushesList
 
-uniquesVec :: VU.Vector HandStrength16
-uniquesVec = VU.fromList uniquesList
+uniquesVec :: U.Vector HandStrength16
+uniquesVec = U.fromList uniquesList
 
 multiplesMap :: M.IntMap HandStrength16
 multiplesMap = M.fromList multiplesList
@@ -25,7 +24,7 @@ multiplesMap = M.fromList multiplesList
 threesMap :: M.IntMap HandStrength16
 threesMap = M.fromList threesList
 
-royalty :: RowType -> Row -> Int
+royalty :: RowType -> U.Vector Card' -> Int
 royalty Top xs | hs >= 6241 = 22 --AAA
                | hs >= 6174 = 21 --KKK
                | hs >= 6107 = 20 --QQQ
@@ -100,23 +99,23 @@ scoreGame p1 p2
   | otherwise              = rateHands p1 p2
 
 
-evalHand :: Row -> HandStrength16
-evalHand xs | VU.length xs == 3 = evalHandThree xs
-            | VU.length xs == 5 = evalHandFive xs
+evalHand :: U.Vector Card' -> HandStrength16
+evalHand xs | U.length xs == 3 = evalHandThree xs
+            | U.length xs == 5 = evalHandFive xs
 
-isFlush :: Row -> Bool
-isFlush xs = VU.foldr (.&.) 0xf000 xs /= 0
+isFlush :: U.Vector Card' -> Bool
+isFlush xs = U.foldr (.&.) 0xf000 xs /= 0
 
-evalFlush :: Row -> Word32
-evalFlush xs = shift (VU.foldr (.|.) 0 xs) (-16)
+evalFlush :: U.Vector Card' -> Word32
+evalFlush xs = shift (U.foldr (.|.) 0 xs) (-16)
 
-evalMultiples :: Row -> Word32
-evalMultiples = VU.foldr (\x y -> (x .&. 0xff) * y) 1
+evalMultiples :: U.Vector Card' -> Word32
+evalMultiples = U.foldr (\x y -> (x .&. 0xff) * y) 1
 
-evalHandFive :: Row -> HandStrength16
-evalHandFive xs | isFlush xs = flushesVec VU.! fromIntegral (evalFlush xs)
-                | uniquesVec VU.! fromIntegral (evalFlush xs) /= 0 = uniquesVec VU.! fromIntegral (evalFlush xs)
+evalHandFive :: U.Vector Card' -> HandStrength16
+evalHandFive xs | isFlush xs = flushesVec U.! fromIntegral (evalFlush xs)
+                | uniquesVec U.! fromIntegral (evalFlush xs) /= 0 = uniquesVec U.! fromIntegral (evalFlush xs)
                 | otherwise = multiplesMap M.! fromIntegral (evalMultiples xs)
 
-evalHandThree :: Row -> HandStrength16
+evalHandThree :: U.Vector Card' -> HandStrength16
 evalHandThree xs = threesMap M.! fromIntegral (evalMultiples xs)

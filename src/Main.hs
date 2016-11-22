@@ -67,13 +67,16 @@ giveEVs :: Player -> Player -> Card -> IO ()
 giveEVs (Player b1 m1 t1) p2 c = do
   putStrLn ""
   if length t1 < 3
-    then printResult "Top:    " (simulate (Player b1 m1 t1') p2 sims)
+    then do res <- (simulate (Player b1 m1 t1') p2 sims)
+            printResult "Top:    " res
     else return ()
   if length m1 < 5
-    then printResult "Middle: " (simulate (Player b1 m1' t1) p2 sims)
+    then do res <- (simulate (Player b1 m1' t1) p2 sims)
+            printResult "Middle: " res
     else return ()
   if length b1 < 5
-    then printResult "Bottom: " (simulate (Player b1' m1 t1) p2 sims)
+    then do res <- (simulate (Player b1' m1 t1) p2 sims)
+            printResult "Bottom: " res
     else return ()
   where printResult str f = putStrLn $ str ++ show f
         b1' = c:b1

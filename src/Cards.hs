@@ -62,13 +62,15 @@ type Card' = Word32
 
 type HandStrength16 = Word16
 
+deck :: [Card]
+deck = [Card r s | r <- (map toEnum [0..12] :: [Rank]), s <- (map toEnum [0..3] :: [Suit])]
+
 -- | Encode card as an Word32 for Cactus Kev's hand evaluation algorithm
 --
 -- >>> printBits . cardToWord32 $ Card King Diamonds
 -- "00001000000000000100101100100101"
 -- >>> printBits . cardToWord32 $ Card Five Spades
 -- "00000000000010000001001100000111"
---
 cardToWord32 :: Card -> Card'
 cardToWord32 (Card r s) =
   primeRank r

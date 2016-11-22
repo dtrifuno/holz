@@ -267,31 +267,40 @@ two_pairs()
 pairs()
 high_cards()
 
-"""
 with open('Data.hs', 'w') as fp:
-    fp_write('module Data where\n')
+    fp.write('module Data where\n\n')
+    fp.write('import Data.Word (Word16)\n\n')
 
-    fp.write('\nflushesList = [')
+    fp.write("flushesList :: [Word16]\n".format(val))
+    fp.write('flushesList = [')
     max_key = max(flushes_table.keys())
-    for i in range(0, max_key+1):
+    for i in range(0, max_key):
         val = flushes_table.get(i, 0)
         fp.write("{}, ".format(val))
+    val = flushes_table.get(max_key, 0)
+    fp.write("{}]\n\n".format(val))
 
-    fp.write('\nuniquesList = [')
+    fp.write("uniquesList :: [Word16]\n".format(val))
+    fp.write('uniquesList = [')
     max_key = max(uniques_table.keys())
-    for i in range(0, max_key+1):
+    for i in range(0, max_key):
         val = uniques_table.get(i, 0)
         fp.write("{}, ".format(val))
+    val = uniques_table.get(max_key, 0)
+    fp.write("{}]\n\n".format(val))
 
-    fp.write('\nmultiplesList = [')
+    fp.write("multiplesList :: [(Int, Word16)]\n".format(max_key, multiples_table[max_key]))
+    fp.write('multiplesList = [')
     max_key = max(multiples_table.keys())
-    for i in range(0, max_key+1):
+    for i in range(0, max_key):
         if i in multiples_table:
             fp.write("({}, {}), ".format(i, multiples_table[i]))
+    fp.write("({}, {})]\n\n".format(max_key, multiples_table[max_key]))
 
-    fp.write('\nthreesList = [')
+    fp.write("threesList :: [(Int, Word16)]\n".format(max_key, threes_table[max_key]))
+    fp.write('threesList = [')
     max_key = max(threes_table.keys())
-    for i in range(0, max_key+1):
+    for i in range(0, max_key):
         if i in threes_table:
             fp.write("({}, {}), ".format(i, threes_table[i]))
-"""
+    fp.write("({}, {})]".format(max_key, threes_table[max_key]))

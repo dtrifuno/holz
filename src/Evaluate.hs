@@ -1,29 +1,31 @@
 module Evaluate where
 
+import Data.Word
+
+import Data.Bits
+import qualified Data.Vector.Unboxed as VU
+import qualified Data.IntMap.Strict as M
+
 import Cards
 import HandStrength.Data
 
-import Data.Word
-import Control.Arrow ((***))
-
-import Data.Bits
-import qualified Data.Array.Unboxed as UA
-import qualified Data.IntMap.Strict as M
-
-type Row     = UA.Array Int Card'
+type Row     = VU.Vector Card'
 data RowType = Bottom | Middle | Top
-data Player'  = Player' Row Row Row
+data Player' = Player' Row Row Row
 
-flushesArray = UA.listArray (0, length flushesList - 1) (map fromIntegral flushesList) :: UA.Array Int HandStrength16
+flushesVec :: VU.Vector HandStrength16
+flushesVec = VU.fromList flushesList
 
-uniquesArray = UA.listArray (0, length uniquesList - 1) (map fromIntegral uniquesList) :: UA.Array Int HandStrength16
+uniquesVec :: VU.Vector HandStrength16
+uniquesVec = VU.fromList uniquesList
 
-multiplesMap = M.fromList (map (fromIntegral *** fromIntegral) multiplesList :: [(Int, HandStrength16)])
+multiplesMap :: M.IntMap HandStrength16
+multiplesMap = M.fromList multiplesList
 
-threesMap = M.fromList (map (fromIntegral *** fromIntegral) threesList :: [(Int, HandStrength16)])
+threesMap :: M.IntMap HandStrength16
+threesMap = M.fromList threesList
 
-
-royalty :: (Foldable t) => RowType -> t Card' -> Int
+royalty :: RowType -> Row -> Int
 royalty Top xs | hs >= 6241 = 22 --AAA
                | hs >= 6174 = 21 --KKK
                | hs >= 6107 = 20 --QQQ
@@ -70,7 +72,8 @@ royalties :: Player' -> Int
 royalties (Player' b1 m1 t1) = royalty Bottom b1 - royalty Middle m1 - royalty Top t1
 
 rateHands :: Player' -> Player' -> Int
-rateHands p1@(Player' b1 m1 t1) p2@(Player' b2 m2 t2) = royalties p1 - royalties p2
+rateHands p1@(Player' b1 m1 t1) p2@(Player' b2 m2 t2) =
+   royalties p1 - royalties p2
  + if evalHand b1 > evalHand b2 then 1 else 0
  + if evalHand b2 > evalHand b1 then (-1) else 0
  + if evalHand m1 > evalHand m2 then 1 else 0
@@ -97,23 +100,23 @@ scoreGame p1 p2
   | otherwise              = rateHands p1 p2
 
 
-evalHand :: (Foldable t) => t Card' -> HandStrength16
-evalHand xs | length xs == 3 = evalHandThree xs
-            | length xs == 5 = evalHandFive xs
+evalHand :: Row -> HandStrength16
+evalHand xs | VU.length xs == 3 = evalHandThree xs
+            | VU.length xs == 5 = evalHandFive xs
 
-isFlush :: (Foldable t) => t Card' -> Bool
-isFlush xs = foldr (.&.) 0xf000 xs /= 0
+isFlush :: Row -> Bool
+isFlush xs = VU.foldr (.&.) 0xf000 xs /= 0
 
-evalFlush :: (Foldable t) => t Card' -> Word32
-evalFlush xs = shift (foldr (.|.) 0 xs) (-16)
+evalFlush :: Row -> Word32
+evalFlush xs = shift (VU.foldr (.|.) 0 xs) (-16)
 
-evalMultiples :: (Foldable t) => t Card' -> Word32
-evalMultiples = foldr (\x y -> (x .&. 0xff) * y) 1
+evalMultiples :: Row -> Word32
+evalMultiples = VU.foldr (\x y -> (x .&. 0xff) * y) 1
 
-evalHandFive :: (Foldable t) => t Card' -> HandStrength16
-evalHandFive xs | isFlush xs = flushesArray UA.! fromIntegral (evalFlush xs)
-                | uniquesArray UA.! fromIntegral (evalFlush xs) /= 0 = uniquesArray UA.! fromIntegral (evalFlush xs)
+evalHandFive :: Row -> HandStrength16
+evalHandFive xs | isFlush xs = flushesVec VU.! fromIntegral (evalFlush xs)
+                | uniquesVec VU.! fromIntegral (evalFlush xs) /= 0 = uniquesVec VU.! fromIntegral (evalFlush xs)
                 | otherwise = multiplesMap M.! fromIntegral (evalMultiples xs)
 
-evalHandThree :: (Foldable t) => t Card' -> HandStrength16
+evalHandThree :: Row -> HandStrength16
 evalHandThree xs = threesMap M.! fromIntegral (evalMultiples xs)

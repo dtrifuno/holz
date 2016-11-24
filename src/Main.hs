@@ -3,7 +3,7 @@
 module Main where
 
 
-import Control.Monad (forever)
+import Control.Monad (forever, when)
 import Data.List (nub)
 import qualified Data.Text.IO as T.IO
 import System.IO
@@ -20,6 +20,7 @@ main = do
 
 handleSetting :: IO ()
 handleSetting = do
+  giveEVs p1bug p2bug cardbug --DEBUG
   putStr "Input cards as a comma-separated list in shorthand notation."
   putStrLn " (example: Ah,Th,5h)\n"
   bottom' <- promptCards "Your Bottom row: "
@@ -60,25 +61,40 @@ validate (Player b1 m1 t1) (Player b2 m2 t2) c =
   cards == nub cards
   where cards = c:(b1 ++ m1 ++ t1 ++ b2 ++ m2 ++ t2)
 
+--Number of simulations to run, consider increasing to 1-2 million
+--after optimization for more stable results
 sims :: Int
-sims = 1000
+sims = 400000
 
 giveEVs :: Player -> Player -> Card -> IO ()
 giveEVs (Player b1 m1 t1) p2 c = do
   putStrLn ""
-  if length t1 < 3
-    then do res <- (simulate (Player b1 m1 t1') p2 sims)
-            printResult "Top:    " res
-    else return ()
-  if length m1 < 5
-    then do res <- (simulate (Player b1 m1' t1) p2 sims)
-            printResult "Middle: " res
-    else return ()
-  if length b1 < 5
-    then do res <- (simulate (Player b1' m1 t1) p2 sims)
-            printResult "Bottom: " res
-    else return ()
+  when (length t1 < 3) $
+    do res <- simulate (Player b1 m1 t1') p2 sims
+       printResult "Top:    " res
+  when (length m1 < 5) $
+    do res <- simulate (Player b1 m1' t1) p2 sims
+       printResult "Middle: " res
+  when (length b1 < 5) $
+    do res <- simulate (Player b1' m1 t1) p2 sims
+       printResult "Bottom: " res
   where printResult str f = putStrLn $ str ++ show f
         b1' = c:b1
         m1' = c:m1
         t1' = c:t1
+
+--DEBUG
+p1bug :: Player
+p1bug = Player [Card Ace Spades, Card Ace Hearts, Card Queen Diamonds]
+               [Card Nine Diamonds, Card Eight Diamonds, Card Seven Diamonds]
+               [Card Nine Spades, Card Eight Spades]
+
+--DEBUG
+p2bug :: Player
+p2bug = Player [Card Queen Spades, Card Queen Hearts, Card Jack Diamonds]
+               [Card Nine Clubs, Card Eight Clubs, Card Seven Clubs]
+               [Card Nine Hearts, Card Eight Hearts]
+
+--DEBUG
+cardbug :: Card
+cardbug = Card Six Clubs

@@ -10,6 +10,7 @@ import Cards
 import HandStrength.Data
 
 data RowType = Bottom | Middle | Top
+             deriving (Eq, Show)
 data Player' = Player' (U.Vector Card') (U.Vector Card') (U.Vector Card')
 
 flushesVec :: U.Vector HandStrength16
@@ -104,13 +105,13 @@ evalHand xs | U.length xs == 3 = evalHandThree xs
             | U.length xs == 5 = evalHandFive xs
 
 isFlush :: U.Vector Card' -> Bool
-isFlush xs = U.foldr (.&.) 0xf000 xs /= 0
+isFlush xs = U.foldr' (.&.) 0xf000 xs /= 0
 
 evalFlush :: U.Vector Card' -> Word32
-evalFlush xs = shift (U.foldr (.|.) 0 xs) (-16)
+evalFlush xs = shift (U.foldr' (.|.) 0 xs) (-16)
 
 evalMultiples :: U.Vector Card' -> Word32
-evalMultiples = U.foldr (\x y -> (x .&. 0xff) * y) 1
+evalMultiples = U.foldr' (\x y -> (x .&. 0xff) * y) 1
 
 evalHandFive :: U.Vector Card' -> HandStrength16
 evalHandFive xs | isFlush xs = flushesVec U.! fromIntegral (evalFlush xs)

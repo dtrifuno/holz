@@ -63,7 +63,7 @@ type Card' = Word32
 type HandStrength16 = Word16
 
 deck :: [Card]
-deck = [Card r s | r <- (map toEnum [0..12] :: [Rank]), s <- (map toEnum [0..3] :: [Suit])]
+deck = [Card r s | r <- map toEnum [0..12] :: [Rank], s <- map toEnum [0..3] :: [Suit]]
 
 -- | Encode card as an Word32 for Cactus Kev's hand evaluation algorithm
 --
@@ -116,6 +116,7 @@ parseCard txt | isNothing (parseRank r) = Nothing
         parseRank 'A' = Just Ace
         parseRank 'K' = Just King
         parseRank 'Q' = Just Queen
+        parseRank 'J' = Just Jack
         parseRank 'T' = Just Ten
         parseRank w   | ord w < ord '2' = Nothing
                       | ord w > ord '9' = Nothing
@@ -127,6 +128,8 @@ parseCard txt | isNothing (parseRank r) = Nothing
 -- Just [Card Ace Hearts,Card Ten Hearts,Card Five Clubs]
 -- >>> parseCards "Ah,TTer,5c"
 -- Nothing
+-- >>> parseCards "Jd,Td,9d,8d"
+-- Just [Card Jack Diamonds,Card Ten Diamonds,Card Nine Diamonds,Card Eight Diamonds]
 -- >>> parseCards ""
 -- Just []
 parseCards :: T.Text -> Maybe [Card]

@@ -20,7 +20,6 @@ main = do
 
 handleSetting :: IO ()
 handleSetting = do
-  giveEVs p1bug p2bug cardbug --DEBUG
   putStr "Input cards as a comma-separated list in shorthand notation."
   putStrLn " (example: Ah,Th,5h)\n"
   bottom' <- promptCards "Your Bottom row: "
@@ -36,6 +35,7 @@ handleSetting = do
     then giveEVs p1 p2 card
     else putStrLn "Not a valid setting. Did you reuse a card? Try again."
   return ()
+  --giveEVs p1bug p2bug cardbug DEBUG
 
 promptCards :: String -> IO [Card]
 promptCards txt = do

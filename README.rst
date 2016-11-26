@@ -3,14 +3,17 @@ Holz
 =========
 
 
-Open-face Chinese poker (`OFC <en.wikipedia.org/wiki/Open-face_Chinese_poker`_) is a game where players set three rows of cards (bottom, middle and top) with the goal of making the best poker hand in each row. Each player starts with initial five cards to set and are afterwards dealt one card a time. Holz uses Monte Carlo simulation to compute the expected value of playing a card in a particular row.
+Open-face Chinese poker (`OFC <en.wikipedia.org/wiki/Open-face_Chinese_poker>`_) is a game where players set three rows of cards (bottom, middle and top) with the goal of making the best poker hand in each row. Each player starts with initial five cards to set and are afterwards dealt one card a time. Holz uses Monte Carlo simulation to compute the expected value of playing a card in a particular row.
 
 Holz is still in very early stages of development. Use at your own risk.
 
 Installation
 =====================
 
-To install just clone the repository and run cabal.::
+To install just clone the repository and run cabal.
+
+::
+
     git clone git@github.com/dtrifuno/holz.git
     cabal build
     cabal install
@@ -19,6 +22,7 @@ Usage
 =====================
 
 Just run the executable holz and follow the prompts. Here's an example of a Holz session.::
+
     FIXME
 
 

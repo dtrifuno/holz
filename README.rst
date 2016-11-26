@@ -3,7 +3,7 @@ Holz
 =========
 
 
-Open-face Chinese poker (`OFC <https://en.wikipedia.org/wiki/Open-face_Chinese_poker>`_) is a game where players set three rows of cards (bottom, middle and top) with the goal of making the best poker hand in each row. Each player starts with initial five cards to set and are afterwards dealt one card a time. Holz uses `Monte Carlo simulation <https://en.wikipedia.org/wiki/Monte_Carlo_method>`_ with a variant of `Cactus Kev's fast hand evulation algorithm <http://suffee.cool/poker/evaluator.html>`_ to compute the expected value of playing a card in a particular row.
+Open-face Chinese poker (`OFC <https://en.wikipedia.org/wiki/Open-face_Chinese_poker>`_) is a game where players set three rows of cards (bottom, middle and top) with the goal of making the best poker hand in each row. Each player starts with initial five cards to set and are afterwards dealt one card a time. Holz uses `Monte Carlo simulation <https://en.wikipedia.org/wiki/Monte_Carlo_method>`_ with a variant of `Cactus Kev's fast hand evaluation algorithm <http://suffe.cool/poker/evaluator.html>`_ to compute the expected value of playing a card in a particular row.
 
 Holz is still in very early stages of development. Use at your own risk.
 

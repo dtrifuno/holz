@@ -69,15 +69,15 @@ sims = 400000
 giveEVs :: Player -> Player -> Card -> IO ()
 giveEVs (Player b1 m1 t1) p2 c = do
   putStrLn ""
-  when (length t1 < 3) $
-    do res <- simulate (Player b1 m1 t1') p2 sims
-       printResult "Top:    " res
-  when (length m1 < 5) $
-    do res <- simulate (Player b1 m1' t1) p2 sims
-       printResult "Middle: " res
   when (length b1 < 5) $
     do res <- simulate (Player b1' m1 t1) p2 sims
        printResult "Bottom: " res
+  when (length m1 < 5) $
+    do res <- simulate (Player b1 m1' t1) p2 sims
+       printResult "Middle: " res
+  when (length t1 < 3) $
+    do res <- simulate (Player b1 m1 t1') p2 sims
+       printResult "Top:    " res
   where printResult str f = putStrLn $ str ++ show f
         b1' = c:b1
         m1' = c:m1

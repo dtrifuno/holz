@@ -11,6 +11,9 @@ import Cards
 import Evaluate
 import Util (shuffle)
 
+-- |Player datatype where rows are encoded as mutable arrays for fast fills.
+-- bEmpty (resp. mEmpty and tEmpty) are the number of slots in the array to
+-- fill during a run.
 data Player'' = Player''
   { bottom'' :: UM.IOVector Card'
   , middle'' :: UM.IOVector Card'
@@ -27,15 +30,15 @@ simulate p1 p2 n = do
   p2'' <- preparePlayer p2
   val <- newIORef 0 :: IO (IORef Int)
   simulateNTimes p1'' p2'' deck'' val n
-  rating <- readIORef val
-  print rating
-  return $ (fromIntegral rating :: Double) / (fromIntegral n :: Double)
+  sumRating <- readIORef val
+  return $ (fromIntegral sumRating :: Double) / (fromIntegral n :: Double)
 
+-- |Returns a list of all cards not currently held by a player.
 remainingCards :: Player -> Player -> [Card]
 remainingCards (Player b1 m1 t1) (Player b2 m2 t2) =
   deck \\ (b1 ++ m1 ++ t1 ++ b2 ++ m2 ++ t2)
 
--- FIXME
+-- FIXME: Very ugly.
 preparePlayer :: Player -> IO Player''
 preparePlayer (Player b m t) = do
   b'' <- U.thaw (U.fromList $ map cardToWord32 b)
@@ -64,7 +67,6 @@ freezePlayer (Player'' b m t _ _ _) = do
   t' <- U.unsafeFreeze t
   return (Player' b' m' t')
 
---FIXME
 fill :: Player'' -> Player'' -> UM.IOVector Card' -> IO ()
 fill p1 p2 deck'' = foldM_ (\x y -> fillRow y deck'' x) 0 [
     (Bottom, bottom'' p1, 5 - bEmpty p1),
@@ -82,8 +84,6 @@ fillRow (rowType, row, j) deck i = do
   card <- UM.read deck i
   UM.write row j card
   fillRow (rowType, row, j+1) deck (i+1)
-  --print (rowType, j)
-  --print (UM.length row)
 
 simulateNTimes :: Player'' -> Player'' -> UM.IOVector Card' ->
                   IORef Int-> Int -> IO ()

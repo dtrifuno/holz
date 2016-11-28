@@ -41,7 +41,7 @@ flushes_table = {}
 uniques_table = {}
 multiples_table = {}
 threes_table = {}
-val = 7916
+val = 7916 # global variable to keep track of the rating of the next hand
 
 def is_flush(c1, c2, c3, c4, c5):
     return c1 & c2 & c3 & c4 & c5 & 0xf000 != 0

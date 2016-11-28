@@ -35,7 +35,6 @@ handleSetting = do
     then giveEVs p1 p2 card
     else putStrLn "Not a valid setting. Did you reuse a card? Try again."
   return ()
-  --giveEVs p1bug p2bug cardbug DEBUG
 
 promptCards :: String -> IO [Card]
 promptCards txt = do
@@ -64,7 +63,7 @@ validate (Player b1 m1 t1) (Player b2 m2 t2) c =
 --Number of simulations to run, consider increasing to 1-2 million
 --after optimization for more stable results
 sims :: Int
-sims = 400000
+sims = 200000
 
 giveEVs :: Player -> Player -> Card -> IO ()
 giveEVs (Player b1 m1 t1) p2 c = do
@@ -82,19 +81,3 @@ giveEVs (Player b1 m1 t1) p2 c = do
         b1' = c:b1
         m1' = c:m1
         t1' = c:t1
-
---DEBUG
-p1bug :: Player
-p1bug = Player [Card Ace Spades, Card Ace Hearts, Card Queen Diamonds]
-               [Card Nine Diamonds, Card Eight Diamonds, Card Seven Diamonds]
-               [Card Nine Spades, Card Eight Spades]
-
---DEBUG
-p2bug :: Player
-p2bug = Player [Card Queen Spades, Card Queen Hearts, Card Jack Diamonds]
-               [Card Nine Clubs, Card Eight Clubs, Card Seven Clubs]
-               [Card Nine Hearts, Card Eight Hearts]
-
---DEBUG
-cardbug :: Card
-cardbug = Card Six Clubs

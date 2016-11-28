@@ -25,8 +25,6 @@ Run the executable holz in a console and follow the directions in the prompts. H
 
     dtrifuno@ubuntu:~/haskell/holz$ cabal run
     Preprocessing executable 'holz' for holz-0.1.0.0...
-    [6 of 6] Compiling Main             ( src/Main.hs, dist/build/holz/holz-tmp/Main.o )
-    Linking dist/build/holz/holz ...
     Running holz...
     Input cards as a comma-separated list in shorthand notation. (example: Ah,Th,5h)
 
@@ -38,10 +36,9 @@ Run the executable holz in a console and follow the directions in the prompts. H
     Opponent's Top row: 8c
     Card you are about to play: 5c
 
-    Bottom: 0.9788725
-    Middle: 0.98533
-    Top:    1.2485
-
+    Bottom: 0.119225
+    Middle: 0.158675
+    Top:    -0.342215
 
 TODO
 =====================

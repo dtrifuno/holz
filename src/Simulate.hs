@@ -49,7 +49,6 @@ preparePlayer (Player b m t) = do
   m' <- if mEmpty' > 0 then UM.grow m'' mEmpty' else return m''
   t'' <- U.thaw (U.fromList $ map cardToWord32 t)
   let tEmpty' = 3 - UM.length t''
-  t' <- UM.grow t'' tEmpty'
   t' <- if tEmpty' > 0 then UM.grow t'' tEmpty' else return t''
   return (Player'' b' m' t' bEmpty' mEmpty' tEmpty')
 
@@ -87,7 +86,7 @@ fillRow (rowType, row, j) deck i = do
 
 simulateNTimes :: Player'' -> Player'' -> UM.IOVector Card' ->
                   IORef Int-> Int -> IO ()
-simulateNTimes p1 p2 deck val 0 = return ()
+simulateNTimes _ _ _ _ 0        = return ()
 simulateNTimes p1 p2 deck val n = do
   (p1', p2') <- simulateOnce p1 p2 deck val
   simulateNTimes p1' p2' deck val (n-1)

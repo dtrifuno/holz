@@ -60,6 +60,6 @@ WONTDO
 
 These are the features I am very unlikely to add.
 
-* **Initial setting.** Currently you can only add cards one at a time, which means you cannot use Holz to set your starting five cards. Finding an initial setting is computationally expensive (about 200 choices as opposed to 3), so this is likely to be difficult barring a significant improvement to the algorithm used.
+* **Initial setting.** Currently you can only add cards one at a time, which means you cannot use Holz to set your starting five cards. Finding an initial setting is computationally expensive (about 200 choices as opposed to 3), so this is likely to be difficult barring major gains in optimization.
 
 * **Pineapple.** Holz will only support standard OFC poker, not the Pineapple variant.

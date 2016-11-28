@@ -21,7 +21,9 @@ To install just clone the repository and run cabal.
 Usage
 =====================
 
-Run the executable holz in a console and follow the directions in the prompts. Here's an example of a Holz session.::
+Run the executable holz in a console and follow the directions in the prompts. Here's an example of a Holz session.
+
+::
 
     dtrifuno@ubuntu:~/haskell/holz$ cabal run
     Preprocessing executable 'holz' for holz-0.1.0.0...

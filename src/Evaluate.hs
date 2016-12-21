@@ -26,6 +26,11 @@ multiplesMap = M.fromList multiplesList
 threesMap :: M.IntMap HandStrength16
 threesMap = M.fromList threesList
 
+toArrayPlayer :: Player -> Player'
+toArrayPlayer (Player b m t) = Player' (U.fromList (map cardToWord32 b))
+                                       (U.fromList (map cardToWord32 m))
+                                       (U.fromList (map cardToWord32 t))
+
 royalty :: RowType -> Row' -> Int
 royalty Top xs | hs >= 6241 = 22 --AAA
                | hs >= 6174 = 21 --KKK

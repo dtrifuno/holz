@@ -89,13 +89,13 @@ rateRow r1 r2 | evalHand r1 > evalHand r2 = 1
               | evalHand r2 > evalHand r1 = -1
               | otherwise                 = 0
 
--- Has p1 scooped p2?
+-- | Has player p1 scooped player p2?
 scooped :: Player' -> Player' -> Bool
 scooped (Player' b1 m1 t1) (Player' b2 m2 t2) = (evalHand b1 > evalHand b2)
     && (evalHand m1 > evalHand m2)
     && (evalHand t1 > evalHand t2)
 
--- Has the player fouled?
+-- | Has the player fouled?
 fouled :: Player' -> Bool
 fouled (Player' b m t) = not $ (evalHand t <= evalHand m)
                             && (evalHand m <= evalHand b)

@@ -28,10 +28,10 @@ simulate p1 p2 n = do
   deck'' <- U.thaw (U.fromList $ map cardToWord32 (remainingCards p1 p2))
   p1'' <- preparePlayer p1
   p2'' <- preparePlayer p2
-  val <- newIORef 0 :: IO (IORef Int)
+  val <- newIORef (0 :: Int)
   simulateNTimes p1'' p2'' deck'' val n
   sumRating <- readIORef val
-  return $ (fromIntegral sumRating :: Double) / (fromIntegral n :: Double)
+  return (fromIntegral sumRating / fromIntegral n :: Double)
 
 -- |Returns a list of all cards not currently held by a player.
 remainingCards :: Player -> Player -> [Card]

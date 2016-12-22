@@ -106,7 +106,7 @@ scoreGame p1 p2
   | fouled p1              = -6 - royalties p2
   | fouled p2              = 6 + royalties p1
   | scooped p1 p2          = 3 + rateHands p1 p2
-  | scooped p2 p1          = -3 + rateHands p2 p1
+  | scooped p2 p1          = -3 + rateHands p1 p2
   | otherwise              = rateHands p1 p2
 
 

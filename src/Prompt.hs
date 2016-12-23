@@ -2,9 +2,10 @@
 
 module Prompt where
 
-
-import Control.Monad (forever, when)
+import Control.Concurrent
+import Control.Monad (forever, when, unless)
 import Data.List (nub)
+import Data.IORef
 import qualified Data.Text.IO as T.IO
 import System.IO
 
@@ -62,6 +63,7 @@ sims = 200000
 giveEVs :: Player -> Player -> Card -> IO ()
 giveEVs (Player b1 m1 t1) p2 c = do
   putStrLn ""
+  done <- newIORef (3 :: Int)
   when (length b1 < 5) $
     do res <- simulate (Player b1' m1 t1) p2 sims
        printResult "Bottom: " res
@@ -71,7 +73,9 @@ giveEVs (Player b1 m1 t1) p2 c = do
   when (length t1 < 3) $
     do res <- simulate (Player b1 m1 t1') p2 sims
        printResult "Top:    " res
+  areWeDone done
   where printResult str f = putStrLn $ str ++ show f
         b1' = c:b1
         m1' = c:m1
         t1' = c:t1
+        areWeDone y = readIORef y >>= \x -> unless (x == 3) (areWeDone y)

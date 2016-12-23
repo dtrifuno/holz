@@ -15,7 +15,11 @@ cabal-version:       >=1.10
 
 executable holz
   main-is:           Main.hs
-  ghc-options:       -Wall -O2
+  ghc-options:       
+    -Wall
+    -O2
+    -threaded
+    "-with-rtsopts=-N"
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >= 4.8 && < 4.9
@@ -29,7 +33,12 @@ executable holz
 -- Executable with hardcoded input for profiling
 executable holz-benchmark
   main-is:           Benchmark.hs
-  ghc-options:       -Wall -O2
+  ghc-options:
+    -O2
+    -threaded
+    -fprof-auto
+    -prof
+    "-with-rtsopts=-N -p -s -h -i0.1"
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >= 4.8 && < 4.9

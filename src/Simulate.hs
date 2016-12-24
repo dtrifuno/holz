@@ -1,15 +1,16 @@
 module Simulate where
 
+import Control.Applicative ((<*>))
+import Control.Monad (foldM_)
 import Data.List ((\\))
 import Data.IORef
-import Control.Monad (foldM_)
 
 import qualified Data.Vector.Unboxed as U
 import qualified Data.Vector.Unboxed.Mutable as UM
 
 import Cards
 import Evaluate
-import Util (shuffle)
+import Util (shuffleTo)
 
 -- |Player datatype where rows are encoded as mutable arrays for fast fills.
 -- bEmpty (resp. mEmpty and tEmpty) are the number of slots in the array to
@@ -94,7 +95,7 @@ simulateNTimes p1 p2 deck val n = do
 simulateOnce :: Player'' -> Player'' -> UM.IOVector Card' ->
                 IORef Int-> IO (Player'', Player'')
 simulateOnce p1 p2 deck val = do
-  shuffle deck
+  shuffleTo howMany deck
   fill p1 p2 deck
   frozenP1 <- freezePlayer p1
   frozenP2 <- freezePlayer p2
@@ -103,4 +104,5 @@ simulateOnce p1 p2 deck val = do
   p1' <- thawPlayer frozenP1 (bEmpty p1) (mEmpty p1) (tEmpty p1)
   p2' <- thawPlayer frozenP2 (bEmpty p2) (mEmpty p2) (tEmpty p2)
   return (p1', p2')
+  where howMany = sum ([bEmpty, mEmpty, tEmpty] <*> [p1, p2])
   --putStrLn "DEBUG: Finished simulating once"

@@ -15,7 +15,10 @@ stripWhitespace :: T.Text -> T.Text
 stripWhitespace = T.filter (`notElem` [' ', '\n', '\t'])
 
 shuffle :: UM.Unbox a => UM.IOVector a -> IO ()
-shuffle vec = forM_ [0..(n-2)] $ \i -> do
-  j <- randomRIO (i, n - 1)
+shuffle vec = shuffleTo (UM.length vec - 1) vec
+
+shuffleTo :: UM.Unbox a => Int -> UM.IOVector a -> IO ()
+shuffleTo n vec = forM_ [0..n] $ \i -> do
+  j <- randomRIO (i, m - 1)
   UM.swap vec i j
-  where n = UM.length vec
+  where m = UM.length vec
